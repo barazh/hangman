@@ -81,20 +81,29 @@ def display_hangman(tries):
     return stages[tries]
 
 
-def play(word):
+def play(word, difficulty):
     word_completion = '_' * len(word)  # строка, содержащая символы _ на каждую букву задуманного слова
-    guessed = False  # сигнальная метка
     guessed_letters = []  # список уже названных букв
     guessed_words = []  # список уже названных слов
     tries = 6  # количество попыток
+    tmp_word = word
 
+    print()
     print("Давайте играть в угадайку слов!")
+
+    if difficulty == '1':
+        word_completion = word[0] + word_completion[1:len(word) - 1] + word[-1]
+
+
     print(display_hangman(tries))
     print(f'Загаданно слово {word_completion} из {len(word)} букв')
 
     while True:
         if tries == 0:
             print(f'У вас закончились попытки! Было загаданно слово {word}')
+            break
+        elif word_completion == word:
+            print(f'Поздравляем, вы угадали слово! Вы победили!')
             break
 
         word_in = input('Введите букву или слово: ').strip().upper()
@@ -117,30 +126,45 @@ def play(word):
             break
         elif word_in != word and len(word_in) > 1:  # Если пользователь ввел НЕ правильное слово
             print("Вы не угадали слово!")
+            guessed_words.append(word_in)
             tries -= 1
             print(display_hangman(tries))
             print(word_completion)
             continue
         elif word_in not in word and len(word_in) == 1:  # Если пользователь ввел НЕ правильную букву
-            print('Вы не угадали букву!')
+            print('Такой бквы нет!')
+            guessed_letters.append(word_in)
             tries -= 1
             print(display_hangman(tries))
             print(word_completion)
             continue
-        elif word_in in word and len(word_in) == 1:
+        elif word_in in word and len(word_in) == 1:  # Если пользователь угадал букву
             print('Есть такая буква!')
+            guessed_letters.append(word_in)
             for _ in range(word.count(word_in)):
-                tmp = word.find(word_in)
-                word_completion[tmp] = word_in
-
+                word_completion = word_completion[:tmp_word.find(word_in)] + word_in + word_completion[tmp_word.find(word_in) + 1:]
+                tmp_word = tmp_word.replace(word_in, "_", 1)
             print(word_completion)
-            print(tmp)
-
+            continue
 
 
 words_list = ["человек", "слово", "лицо", "дверь", "земля", "работа", "ребенок", "история", "женщина", "развитие",
               "власть", "правительство", "начальник", "спектакль", "автомобиль", "экономика", "литература", "граница",
               "магазин", "председатель", "сотрудник", "республика", "личность"]
 
-# play(get_word())
-play("СЛОВО")
+while True:
+    while True:
+        difficulty = input('Выбирите уровень сложности игры. 1 - Легкий, 2 - Нормальный: ')
+        if difficulty == '1' or difficulty == '2':
+            break
+        else:
+            print('Введите коректное значение!')
+            continue
+
+    play(get_word(), difficulty)
+    print()
+    user_otvet = int(input("Хотите повторить игру? Введите 1 если Да, или 2 если Нет: "))
+    if user_otvet == 1:
+        continue
+    else:
+        break
